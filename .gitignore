@@ -30,3 +30,29 @@
 *.exe
 *.out
 *.app
+
+# CMake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+build/
+
+# Logs and temporary files
+logs/
+*.log
+
+# Environment files
+.env
+
+# VS Code settings
+.vscode/
+
+# Scripts
+*.sh~
+
+# Miscellaneous
+*.swp
+*.bak
+*.tmp
+.DS_Store
+Thumbs.db
