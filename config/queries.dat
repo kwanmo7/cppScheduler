@@ -1,0 +1,2 @@
+insertRecord=INSERT INTO record (time, subscribers, dropouts, payment_amount, amount_used, sales_amount) VALUES (?, ?, ?, ?, ?, ?);
+selectRecords=SELECT * FROM record WHERE time >= ?;
