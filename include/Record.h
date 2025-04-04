@@ -32,8 +32,16 @@ class Record{
 
     std::string toString() const {
       auto timeT = std::chrono::system_clock::to_time_t(time);
+      std::tm timeStruct;
+
+      #if defined(_WIN32) || defined(_WIN64)
+        localtime_s(&timeStruct, &timeT);
+      #else
+        timeStruct = *localtime(&timeT);
+      #endif
+
       std::ostringstream oss;
-      oss << "Time: " << std::put_time(std::localtime(&timeT), "%Y-%m-%d %H:%M:%S")
+      oss << "Time: " << std::put_time(&timeStruct, "%Y-%m-%d %H:%M:%S")
           << ", Subscribers: " << subscribers
           << ", Dropouts: " << dropouts
           << ", PaymentAmount: " << paymentAmount

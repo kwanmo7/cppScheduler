@@ -28,7 +28,7 @@ Record RecordUtil::createRecord(const vector<string>& input, time_t formatter){
     auto timePoint = chrono::system_clock::from_time_t(formatter);
     Record record(timePoint, stoi(input[1]), stoi(input[2]), stoi(input[3]),
                   stoi(input[4]), stoi(input[5]));
-
+    return record;
   }catch(const exception& e){
     cerr << "Error creating Record from CSV: " << e.what() << endl;
     return Record();

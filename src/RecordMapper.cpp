@@ -6,15 +6,8 @@
 
 using namespace std;
 
-// 환경 변수 가져옴
-string RecordMapper::getEnvVar(const string& varName){
-  // dotenv 객체 생성 및 초기화(.env 파일 자동 로드)
-  dotenv env;
-  return env.get(varName);
-}
-
-RecordMapper::RecordMapper(){
-  loadQueries(string(CONFIG_PATH) + "/queries.dat");
+RecordMapper::RecordMapper() : env(){
+  loadQueries(env.get("CONFIG_PATH") + "/queries.dat");
   connect();
 }
 
@@ -43,6 +36,12 @@ void RecordMapper::connect(){
   }
 }
 
+// 환경 변수 가져옴
+string RecordMapper::getEnvVar(const string& varName){
+  // dotenv 객체 생성 및 초기화(.env 파일 자동 로드)
+  return env.get(varName);
+}
+
 void RecordMapper::loadQueries(const string& filePath){
   ifstream file(filePath);
   if(!file.is_open()){
@@ -65,9 +64,16 @@ void RecordMapper::insertRecord(const Record& record){
     unique_ptr<sql::PreparedStatement> pstmt(connection->prepareStatement(query));
 
     auto timeT = chrono::system_clock::to_time_t(record.time);
-    char buffer[20];
-    memset(buffer, 0, sizeof(buffer));
-    strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", localtime(&timeT));
+    char buffer[20] = {0};
+    tm timeStruct;
+
+    #if defined(_WIN32) || defined(_WIN64)
+      localtime_s(&timeStruct, &timeT);
+    #else
+      timeStruct = *localtime(&timeT);
+    #endif
+
+    strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", &timeStruct);
     string formmattedTime(buffer);
 
     // PreparedStatement에 값 설정
@@ -88,7 +94,6 @@ void RecordMapper::insertRecord(const Record& record){
 
 vector<Record> RecordMapper::selectRecord(const string& dateTime){
   vector<Record> records;
-  records.clear();
 
   try{
     const string& query = queries.at("selectRecords");
@@ -100,7 +105,17 @@ vector<Record> RecordMapper::selectRecord(const string& dateTime){
     while(res->next()){
       record.init();
 
-      record.time = chrono::system_clock::from_time_t(time(nullptr));
+      string timeStr = res->getString("time");
+      tm tm= {};
+      istringstream ss(timeStr);
+      ss >> get_time(&tm, "%Y-%m-%d %H:%M:%S");
+      if(!ss.fail()){
+        time_t timeT = mktime(&tm);
+        record.time = chrono::system_clock::from_time_t(timeT);
+      }else{
+        record.time = chrono::system_clock::time_point{};
+      }
+      
       record.subscribers = res->getInt("subscribers");
       record.dropouts = res->getInt("dropouts");
       record.paymentAmount = res->getInt("payment_amount");

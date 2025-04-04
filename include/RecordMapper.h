@@ -20,10 +20,15 @@ class RecordMapper{
   private:
       std::unique_ptr<sql::Connection> connection;  // MySQL Connection
       std::unordered_map<std::string, std::string> queries; // 쿼리를 저장할 맵
+      dotenv env;
 
       void connect(); // DB 연결
       void loadQueries(const std::string& filepath);  // .dat 파일에서 SQL 쿼리 가져오기
       std::string getEnvVar(const std::string& varName);  // 환경변수 가져오기
+
+  #ifdef UNIT_TEST
+      friend class RecordMapperMockTest;
+  #endif
 };
 
 #endif // RECORD_MAPPER_H
