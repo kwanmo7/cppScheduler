@@ -6,20 +6,20 @@
 
 namespace fs = std::filesystem;
 
-void FileProcessor::processFiles(const std::string& directory){
-  RecordMapper RecordMapper;
-  SchedulerService schedulerService(RecordMapper);
+FileProcessor::FileProcessor(SchedulerService* service)
+    : schedulerService(service){}
 
+void FileProcessor::processFiles(const std::string& directory){
   for(const auto& entry : fs::directory_iterator(directory)){
     try{
       if(entry.path().extension() == std::string(".") + ConstVO::suffixForTxt){
         std::cout << "Processing TXT file: " << entry.path() << std::endl;
 
-        schedulerService.readTxtFile(entry.path().string());
+        schedulerService->readTxtFile(entry.path().string());
       }else if(entry.path().extension() == std::string(".") + ConstVO::suffixForCsv){
         std::cout << "Processing CSV file: " << entry.path() << std::endl;
 
-        schedulerService.readCsvFile(entry.path().string());
+        schedulerService->readCsvFile(entry.path().string());
       }else{
         std::cerr << "Unsupported file type: " << entry.path() << std::endl;
       }

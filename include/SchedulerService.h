@@ -25,6 +25,10 @@ class SchedulerService{
       std::vector<std::string> split(const std::string& str, char delimiter);
 
       RecordMapper& recordMapper;
+
+  #ifdef UNIT_TEST
+      friend class SchedulerServiceTest;
+  #endif
 };
 
 #endif // SCHEDULER_SERVICE_H

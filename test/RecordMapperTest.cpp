@@ -1,3 +1,4 @@
+#define UNIT_TEST
 #include "RecordMapper.h"
 #include "Record.h"
 #include "MockSQL.h"
@@ -51,7 +52,7 @@ protected:
         };
 
         mapper = std::make_unique<RecordMapper>(std::make_unique<TestSQL>(std::move(mockConn)));
-        mapper->loadQueries("test_queries.dat");  // 테스트용 dummy 쿼리 파일
+        mapper->loadQueries("queries.dat");  // 테스트용 dummy 쿼리 파일
     }
 
     void TearDown() override {
@@ -79,4 +80,51 @@ TEST_F(RecordMapperMockTest, SelectRecordReturnsMockedResult) {
     auto results = mapper->selectRecord("2024-04-05 12:34:56");
     ASSERT_EQ(results.size(), 1);
     EXPECT_EQ(results[0].subscribers, 111);
+}
+
+class RecordMapperRealTest : public ::testing::Test{
+  protected:
+    std::unique_ptr<RecordMapper> mapper;
+    
+    void SetUp() override {
+        mapper = std::make_unique<RecordMapper>();
+    }
+
+    void TearDown() override {
+        mapper.reset();
+    }
+};
+
+TEST_F(RecordMapperRealTest, InsertAndSelectWorksWithRealDB){
+    Record input;
+    input.init();
+    input.subscribers = 999;
+    input.dropouts = 10;
+    input.paymentAmount = 200;
+    input.amountUsed = 100;
+    input.salesAmount = 300;
+
+    EXPECT_NO_THROW({
+        mapper->insertRecord(input);
+    });
+
+    std::ostringstream oss;
+    std::time_t timeT = std::chrono::system_clock::to_time_t(input.time);
+    tm timeStruct;
+
+    #if defined(_WIN32) || defined(_WIN64)
+        localtime_s(&timeStruct, &timeT);
+    #else
+        localtime_r(&timeT, &timeStruct);
+    #endif
+
+    char buf[20];
+    strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", &timeStruct);
+
+    auto result = mapper->selectRecord(buf);
+    EXPECT_EQ(result[0].subscribers, input.subscribers);
+    EXPECT_EQ(result[0].dropouts, input.dropouts);
+    EXPECT_EQ(result[0].paymentAmount, input.paymentAmount);
+    EXPECT_EQ(result[0].amountUsed, input.amountUsed);
+    EXPECT_EQ(result[0].salesAmount, input.salesAmount);
 }

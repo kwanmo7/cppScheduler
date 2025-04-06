@@ -5,7 +5,11 @@
 
 class FileProcessor{
   public:
+    explicit FileProcessor(SchedulerService* service);
     void processFiles(const std::string& directory);
+
+  private:
+    SchedulerService* schedulerService;
 };
 
 #endif // FILE_PROCESSOR_H
