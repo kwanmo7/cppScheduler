@@ -1,4 +1,4 @@
-#define UNIT_TEST
+#define UNIT_TEST2
 
 #include "SchedulerService.h"
 #include <gtest/gtest.h>
@@ -25,7 +25,6 @@ TEST_F(SchedulerServiceTest, SplitStringByDelimiter) {
   vector<string> expected = {"100", "10", "2000", "1500", "3000"};
 
   auto result = service.split(input, '|');
-
   EXPECT_EQ(result, expected);
 }
 

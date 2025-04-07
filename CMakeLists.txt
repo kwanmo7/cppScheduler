@@ -68,7 +68,7 @@ target_link_libraries(test_main
   mysqlcppconn
 )
 
-target_compile_definitions(test_main PRIVATE UNIT_TEST)
+target_compile_definitions(test_main PRIVATE UNIT_TEST UNIT_TEST2)
 
 if (MSVC)
   target_compile_options(test_main PRIVATE /W4 /utf-8)

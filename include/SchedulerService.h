@@ -26,8 +26,8 @@ class SchedulerService{
 
       RecordMapper& recordMapper;
 
-  #ifdef UNIT_TEST
-      friend class SchedulerServiceTest;
+  #ifdef UNIT_TEST2
+      friend class ::SchedulerServiceTest;
   #endif
 };
 
